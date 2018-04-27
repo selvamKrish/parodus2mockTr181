@@ -93,7 +93,7 @@ int main( int argc, char **argv)
 	}
 
 	connect_parodus(parodus_port, client_port);
-
+  subscribeToEvent("node-change","all");
 	startParodusReceiveThread();
 
 	sleep(5);

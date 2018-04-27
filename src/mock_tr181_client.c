@@ -1037,3 +1037,60 @@ void *parodus_receive_wait()
 	return 0;
 }
 
+
+void subscribeToEvent(char *eventName, char *regex){
+
+	wrp_msg_t *res_wrp_msg = NULL;
+	cJSON *response = NULL,*parameters = NULL;
+	char * str = NULL;
+	char *contentType = NULL;
+	int sendStatus;
+
+	res_wrp_msg = (wrp_msg_t *) malloc(sizeof(wrp_msg_t));
+	if (res_wrp_msg)
+	{
+		memset(res_wrp_msg, 0, sizeof(wrp_msg_t));
+	}
+	else
+	{
+		Error("In subscribeToEvent() - malloc Failed !!!");
+	}
+
+	response = cJSON_CreateObject();
+	cJSON_AddItemToObject(response, "config", parameters = cJSON_CreateObject());
+	cJSON_AddStringToObject(parameters, eventName, regex);
+
+	str = cJSON_PrintUnformatted(response);
+    Info("Payload Response: %s\n", str);
+
+	res_wrp_msg->msg_type = WRP_MSG_TYPE__CREATE;
+	res_wrp_msg->u.crud.payload = (void *)str;
+	res_wrp_msg->u.crud.payload_size = strlen(str);
+	res_wrp_msg->u.crud.source = strdup("config");
+	res_wrp_msg->u.crud.dest = strdup("parodus");
+	res_wrp_msg->u.crud.transaction_uuid = "c07ee5e1-70be-444c-a156-097c767ad8aa";
+	res_wrp_msg->u.crud.status = 1;
+	res_wrp_msg->u.crud.rdr = 0;
+	contentType = (char *) malloc(sizeof(char) * (strlen(CONTENT_TYPE_JSON) + 1));
+	if (contentType)
+	{
+		strncpy(contentType, CONTENT_TYPE_JSON, strlen(CONTENT_TYPE_JSON) + 1);
+		res_wrp_msg->u.req.content_type = contentType;
+	}
+	else
+	{
+		free(res_wrp_msg);
+		Error("In subscribeToEvent() - malloc Failed !!!");
+	}
+
+	sendStatus = libparodus_send(mock_tr181_instance, res_wrp_msg);
+	Print("sendStatus is %d\n", sendStatus);
+	if (sendStatus == 0)
+	{
+		Info("Sent message successfully to parodus\n");
+	}
+	else
+	{
+		Error("libparodus_send() Failed to send message: '%s'\n", libparodus_strerror(sendStatus));
+	}
+}

@@ -75,5 +75,7 @@ void startParodusReceiveThread();
 /*----------------------------------------------------------------------------*/
 void processRequest(char *reqPayload, char **resPayload, int* resDelay);
 
+void subscribeToEvent(char *eventName, char *regex);
+
 
 #endif /* __MOCK_TR181_CLIENT_H__ */
